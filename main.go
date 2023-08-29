@@ -39,7 +39,7 @@ func renameFile(oldFileName string, newFileName string, oldPath string, newPath 
 func renameNodeAndFile(node *tview.TreeNode, newName string) {
 
 	oldFileName := node.GetText()
-	path := node.GetReference().(string)
+	path := getNodeReference(node).path
 
 	renameFile(oldFileName, newName, path, path)
 
@@ -90,7 +90,7 @@ func main() {
 
 			newFileName := node.GetText()
 
-			renameForm.AddInputField("Path:", node.GetReference().(string), 50, nil, nil)
+			renameForm.AddInputField("Path:", getNodeReference(node).path, 50, nil, nil)
 
 			renameForm.AddInputField("Name:", node.GetText(), 50, nil, func(newName string) {
 				newFileName = newName
