@@ -1,11 +1,12 @@
 package main
 
 import (
-	"github.com/gdamore/tcell/v2"
-	"github.com/rivo/tview"
 	"log"
 	"os"
 	"path/filepath"
+
+	"github.com/gdamore/tcell/v2"
+	"github.com/rivo/tview"
 )
 
 func getWD() string {
@@ -35,6 +36,21 @@ func renameFile(oldFileName string, newFileName string, oldPath string, newPath 
 
 }
 
+func renameNodeAndFile(node *tview.TreeNode, newName string) {
+
+	oldFileName := node.GetText()
+	path := node.GetReference().(string)
+
+	renameFile(oldFileName, newName, path, path)
+
+	node.SetText(newName)
+
+	if len(node.GetChildren()) != 0 {
+		reSetAllChildNodes(node)
+	}
+
+}
+
 func main() {
 
 	// Create a new tview application
@@ -51,10 +67,13 @@ func main() {
 	})
 
 	// Set up Primitives
+	currentDir := getWD()
+
 	pages := tview.NewPages()
 	flexRow := tview.NewFlex().SetDirection(tview.FlexRow)
 	flexCol := tview.NewFlex()
 	renameForm := tview.NewForm()
+	treeView := newTreeView(currentDir)
 	menu := tview.NewTextView().
 		SetTextColor(tcell.ColorGreen).
 		SetText("(r) To Rename Current Selection\n(q) to quit")
@@ -62,36 +81,28 @@ func main() {
 	// debugOutputList := tview.NewList().ShowSecondaryText(false) // For Debugging
 	// debugOutputList.AddItem("Debug", " ", 43, nil)
 
-	// Tree Setup
-	currentDir := getWD()
-	treeView := newTreeView(currentDir)
 	app.SetFocus(treeView)
 
 	treeView.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
+
 		if event.Rune() == 'r' { //rename a file or dir
 			node := treeView.GetCurrentNode()
 
-			// Rename Form
-			var newFileName string
+			newFileName := node.GetText()
 
-			renameForm.AddInputField("Name:", node.GetText(), 20, nil, func(newName string) {
+			renameForm.AddInputField("Path:", node.GetReference().(string), 50, nil, nil)
+
+			renameForm.AddInputField("Name:", node.GetText(), 50, nil, func(newName string) {
 				newFileName = newName
 			})
 
 			renameForm.AddButton("Rename", func() {
 
-				oldFileName := node.GetText()
-				path := node.GetReference().(string)
-				renameFile(oldFileName, newFileName, path, path)
+				renameNodeAndFile(node, newFileName)
 
-				node.SetText(newFileName)
 				renameForm.Clear(true)
 				flexCol.RemoveItem(renameForm)
 
-				if len(node.GetChildren()) != 0 {
-					reSetAllChildNodes(node)
-				}
-				// treeView.regenerateTree(currentDir)
 				app.SetFocus(treeView)
 
 			})
@@ -119,6 +130,7 @@ func main() {
 }
 
 // TODO
+// Create a file class to hold all file data. Then update the node reference to use the file class.
 // I want to be able to rename all the files in a directory at once.
 // If I click on a dir in the tree I am taken to new screen where I can see a list of all files
 // Here I can change the name of each file.
