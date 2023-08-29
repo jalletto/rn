@@ -9,7 +9,7 @@ import (
 	"github.com/rivo/tview"
 )
 
-type TreeView struct {
+type tree struct {
 	*tview.TreeView
 }
 
@@ -21,20 +21,23 @@ func buildTree(node *tview.TreeNode, dirPath string) error {
 	}
 
 	for _, file := range files {
-		nodeText := file.Name()
-		// fullPath := filepath.Join(dirPath, nodeText)
+		fileName := file.Name()
+
+		reference := newFileInfo(file, dirPath)
+
 		if file.IsDir() {
-			childNode := tview.NewTreeNode(nodeText).
+			childNode := tview.NewTreeNode(fileName).
 				SetSelectable(true).
 				SetExpanded(false).
 				SetColor(tcell.ColorBlue).
-				SetReference(dirPath)
+				SetReference(reference)
+
 			node.AddChild(childNode)
-			if err := buildTree(childNode, filepath.Join(dirPath, nodeText)); err != nil {
+			if err := buildTree(childNode, filepath.Join(dirPath, fileName)); err != nil {
 				return err
 			}
 		} else {
-			node.AddChild(tview.NewTreeNode(nodeText).SetReference(dirPath))
+			node.AddChild(tview.NewTreeNode(fileName).SetReference(reference))
 		}
 	}
 
@@ -43,33 +46,41 @@ func buildTree(node *tview.TreeNode, dirPath string) error {
 
 func reSetAllChildNodes(node *tview.TreeNode) error {
 
-	dirPath := filepath.Join(node.GetReference().(string), node.GetText())
+	dirPath := filepath.Join(getNodeReference(node).path, node.GetText())
 
 	for _, child := range node.GetChildren() {
+
+		reference := getNodeReference(child)
+
+		reference.path = dirPath
+
 		if len(child.GetChildren()) != 0 {
-			child.SetReference(dirPath)
+			child.SetReference(reference)
 			if err := reSetAllChildNodes(child); err != nil {
 				return err
 			}
 		} else {
-			child.SetReference(dirPath)
+			child.SetReference(reference)
 		}
 	}
 	return nil
+}
+
+func getNodeReference(node *tview.TreeNode) *fileInfo {
+	return node.GetReference().(*fileInfo)
 }
 
 func newRootNode(currentDir string) *tview.TreeNode {
 
 	rootNode := tview.NewTreeNode(currentDir).
 		SetSelectable(true).
-		SetExpanded(true).
-		SetReference(currentDir)
+		SetExpanded(true)
 
 	return rootNode
 
 }
 
-func newTreeView(currentDir string) TreeView {
+func newTreeView(currentDir string) tree {
 
 	rootNode := newRootNode(currentDir)
 
@@ -85,15 +96,15 @@ func newTreeView(currentDir string) TreeView {
 		node.SetExpanded(!node.IsExpanded())
 	})
 
-	T := TreeView{
+	t := tree{
 		treeView,
 	}
 
-	return T
+	return t
 
 }
 
-func (tree *TreeView) regenerateTree(currentDir string) {
+func (tree *tree) regenerateTree(currentDir string) {
 
 	rootNode := newRootNode(currentDir)
 

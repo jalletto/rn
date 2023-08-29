@@ -1,3 +1,3 @@
-# RN - Rename Utility Build With [Tview](https://github.com/rivo/tview)
+# RN - Rename Utility Built With [Tview](https://github.com/rivo/tview)
 
 Offers a tree view of your files. Rename them with a TUI interface. Batch rename coming soon...
