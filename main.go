@@ -53,6 +53,8 @@ func renameNodeAndFile(node *tview.TreeNode, newName string) {
 
 func main() {
 
+	currentDir := getWD()
+
 	// Create a new tview application
 	app := tview.NewApplication().
 		EnableMouse(true)
@@ -67,25 +69,30 @@ func main() {
 	})
 
 	// Set up Primitives
-	currentDir := getWD()
-
 	pages := tview.NewPages()
-	flexRow := tview.NewFlex().SetDirection(tview.FlexRow)
-	flexCol := tview.NewFlex()
+	homePage := tview.NewFlex().SetDirection(tview.FlexRow)
+	treeContainer := tview.NewFlex()
 	renameForm := tview.NewForm()
+	batchRenamePage := tview.NewFlex().SetDirection(tview.FlexRow)
+
+	batchRenameForm := tview.NewForm().
+		AddInputField("Find:", " ", 70, nil, nil).
+		AddInputField("Replace:", " ", 70, nil, nil)
+
 	treeView := newTreeView(currentDir)
 	menu := tview.NewTextView().
 		SetTextColor(tcell.ColorGreen).
 		SetText("(r) To Rename Current Selection\n(q) to quit")
 
-	// debugOutputList := tview.NewList().ShowSecondaryText(false) // For Debugging
-	// debugOutputList.AddItem("Debug", " ", 43, nil)
+	debugOutputList := tview.NewList().ShowSecondaryText(false) // For Debugging
+	debugOutputList.AddItem("Debug", " ", 43, nil)
 
 	app.SetFocus(treeView)
 
 	treeView.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 
-		if event.Rune() == 'r' { //rename a file or dir
+		switch event.Rune() {
+		case 'r':
 			node := treeView.GetCurrentNode()
 
 			newFileName := node.GetText()
@@ -101,26 +108,30 @@ func main() {
 				renameNodeAndFile(node, newFileName)
 
 				renameForm.Clear(true)
-				flexCol.RemoveItem(renameForm)
+				treeContainer.RemoveItem(renameForm)
 
 				app.SetFocus(treeView)
 
 			})
 
-			flexCol.AddItem(renameForm, 0, 1, true)
+			treeContainer.AddItem(renameForm, 0, 1, true)
 			app.SetFocus(renameForm)
+		case 'o':
+			pages.SwitchToPage("Batch Rename")
 
 		}
-
 		return event
 	})
 
 	// Layout
-	flexCol.AddItem(treeView, 0, 1, true)
-	flexRow.
-		AddItem(flexCol, 0, 4, true).
+	treeContainer.AddItem(treeView, 0, 1, true)
+	homePage.
+		AddItem(treeContainer, 0, 4, true).
 		AddItem(menu, 0, 1, false)
-	pages.AddPage("Tree View", flexRow, true, true)
+	batchRenamePage.
+		AddItem(batchRenameForm, 0, 1, true)
+	pages.AddPage("Home", homePage, true, true)
+	pages.AddPage("Batch Rename", batchRenamePage, true, false)
 
 	// Start the application
 	if err := app.SetRoot(pages, true).Run(); err != nil {
@@ -130,7 +141,6 @@ func main() {
 }
 
 // TODO
-// Create a file class to hold all file data. Then update the node reference to use the file class.
 // I want to be able to rename all the files in a directory at once.
 // If I click on a dir in the tree I am taken to new screen where I can see a list of all files
 // Here I can change the name of each file.
@@ -141,6 +151,7 @@ func main() {
 // Bugs
 
 // DONE
+// Create a file class to hold all file data. Then update the node reference to use the file class.
 // I want to be able to rename the dirs and files from the tree
 // I want to see the dirs in the my current root.
 // I want to be able to see the files in those dirs
