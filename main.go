@@ -9,16 +9,6 @@ import (
 	"github.com/rivo/tview"
 )
 
-func getWD() string {
-
-	currentDir, err := os.Getwd()
-
-	if err != nil {
-		log.Fatalf("Error getting current directory: %v\n", err)
-	}
-	return currentDir
-}
-
 func renameFile(oldFileName string, newFileName string, oldPath string, newPath string) {
 
 	if oldFileName != newFileName {
@@ -36,28 +26,19 @@ func renameFile(oldFileName string, newFileName string, oldPath string, newPath 
 
 }
 
-func renameNodeAndFile(node *tview.TreeNode, newName string) {
-
-	oldFileName := node.GetText()
-	path := getNodeReference(node).path
-
-	renameFile(oldFileName, newName, path, path)
-
-	node.SetText(newName)
-
-	if len(node.GetChildren()) != 0 {
-		reSetAllChildNodes(node)
-	}
-
+type app struct {
+	*tview.Application
+	*tview.Pages
 }
 
 func main() {
 
-	currentDir := getWD()
+	app := &app{
+		Application: tview.NewApplication(),
+		Pages:       tview.NewPages(),
+	}
 
-	// Create a new tview application
-	app := tview.NewApplication().
-		EnableMouse(true)
+	app.EnableMouse(true)
 
 	app.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 
@@ -68,79 +49,22 @@ func main() {
 		return event
 	})
 
-	// Set up Primitives
-	pages := tview.NewPages()
-	homePage := tview.NewFlex().SetDirection(tview.FlexRow)
-	treeContainer := tview.NewFlex()
-	renameForm := tview.NewForm()
-	batchRenamePage := tview.NewFlex().SetDirection(tview.FlexRow)
-
-	batchRenameForm := tview.NewForm().
-		AddInputField("Find:", " ", 70, nil, nil).
-		AddInputField("Replace:", " ", 70, nil, nil)
-
-	treeView := newTreeView(currentDir)
-	menu := tview.NewTextView().
-		SetTextColor(tcell.ColorGreen).
-		SetText("(r) To Rename Current Selection\n(q) to quit")
-
-	debugOutputList := tview.NewList().ShowSecondaryText(false) // For Debugging
-	debugOutputList.AddItem("Debug", " ", 43, nil)
-
-	app.SetFocus(treeView)
-
-	treeView.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
-
-		switch event.Rune() {
-		case 'r':
-			node := treeView.GetCurrentNode()
-
-			newFileName := node.GetText()
-
-			renameForm.AddInputField("Path:", getNodeReference(node).path, 50, nil, nil)
-
-			renameForm.AddInputField("Name:", node.GetText(), 50, nil, func(newName string) {
-				newFileName = newName
-			})
-
-			renameForm.AddButton("Rename", func() {
-
-				renameNodeAndFile(node, newFileName)
-
-				renameForm.Clear(true)
-				treeContainer.RemoveItem(renameForm)
-
-				app.SetFocus(treeView)
-
-			})
-
-			treeContainer.AddItem(renameForm, 0, 1, true)
-			app.SetFocus(renameForm)
-		case 'o':
-			pages.SwitchToPage("Batch Rename")
-
-		}
-		return event
-	})
-
-	// Layout
-	treeContainer.AddItem(treeView, 0, 1, true)
-	homePage.
-		AddItem(treeContainer, 0, 4, true).
-		AddItem(menu, 0, 1, false)
-	batchRenamePage.
-		AddItem(batchRenameForm, 0, 1, true)
-	pages.AddPage("Home", homePage, true, true)
-	pages.AddPage("Batch Rename", batchRenamePage, true, false)
+	app.AddPage("Home", buildHomePage(app), true, true)
+	app.AddPage("Batch Rename", buildBatchRenamePage(), true, false)
 
 	// Start the application
-	if err := app.SetRoot(pages, true).Run(); err != nil {
+	if err := app.SetRoot(app.Pages, true).Run(); err != nil {
 		log.Fatalf("Error starting application: %v", err)
 	}
 
 }
 
 // TODO
+// I want to be able to press 'm' and get an option to move the file.
+// - I can type in a path
+// - I can choose from a list of common paths
+// - I can create a common path to add to the list
+// I want to be able to press 'd' to delete a file - A dialog box should appear to ask if I'm sure.
 // I want to be able to rename all the files in a directory at once.
 // If I click on a dir in the tree I am taken to new screen where I can see a list of all files
 // Here I can change the name of each file.
