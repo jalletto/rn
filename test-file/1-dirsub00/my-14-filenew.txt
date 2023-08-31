@@ -1,4 +1,0 @@
-for i in {1..15}; do
-    touch "test-$i-file.txt"
-    echo "This is file $i" > "file_$i.txt"
-done
