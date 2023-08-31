@@ -136,8 +136,6 @@ func (tree *tree) renderRenameForm(container *tview.Flex, app *app) {
 
 	newFileName := node.GetText()
 
-	renameForm.AddInputField("Path:", getNodeReference(node).path, 50, nil, nil)
-
 	renameForm.AddInputField("Name:", node.GetText(), 50, nil, func(newName string) {
 		newFileName = newName
 	})
