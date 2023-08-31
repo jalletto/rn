@@ -132,7 +132,7 @@ func (tree *tree) regenerateTree(currentDir string) {
 
 func (tree *tree) renderRenameForm(container *tview.Flex, app *app) {
 	renameForm := tview.NewForm()
-	node := tree.GetCurrentNode()
+	node := app.getCurrentNode()
 
 	newFileName := node.GetText()
 
