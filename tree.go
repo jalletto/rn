@@ -9,10 +9,6 @@ import (
 	"github.com/rivo/tview"
 )
 
-type tree struct {
-	*tview.TreeView
-}
-
 func buildTree(node *tview.TreeNode, dirPath string) error {
 	files, err := os.ReadDir(dirPath)
 
@@ -83,11 +79,13 @@ func newRootNode(currentDir string) *tview.TreeNode {
 func renameNodeAndFile(node *tview.TreeNode, newName string) {
 
 	oldFileName := node.GetText()
-	path := getNodeReference(node).path
+	reference := getNodeReference(node)
+	path := reference.path
 
 	renameFile(oldFileName, newName, path, path)
 
 	node.SetText(newName)
+	reference.name = newName
 
 	if len(node.GetChildren()) != 0 {
 		reSetAllChildNodes(node)
@@ -95,7 +93,7 @@ func renameNodeAndFile(node *tview.TreeNode, newName string) {
 
 }
 
-func newTreeView(currentDir string) tree {
+func newTreeView(currentDir string) *tview.TreeView {
 
 	rootNode := newRootNode(currentDir)
 
@@ -111,26 +109,10 @@ func newTreeView(currentDir string) tree {
 		node.SetExpanded(!node.IsExpanded())
 	})
 
-	t := tree{
-		treeView,
-	}
-
-	return t
-
+	return treeView
 }
 
-func (tree *tree) regenerateTree(currentDir string) {
-
-	rootNode := newRootNode(currentDir)
-
-	if err := buildTree(rootNode, currentDir); err != nil {
-		log.Fatalf("Error building tree: %v", err)
-	}
-
-	tree.SetRoot(rootNode)
-}
-
-func (tree *tree) renderRenameForm(container *tview.Flex, app *app) {
+func renderRenameForm(app *app, onSubmitHandler func()) *tview.Form {
 	renameForm := tview.NewForm()
 	node := app.getCurrentNode()
 
@@ -145,12 +127,13 @@ func (tree *tree) renderRenameForm(container *tview.Flex, app *app) {
 		renameNodeAndFile(node, newFileName)
 
 		renameForm.Clear(true)
-		container.RemoveItem(renameForm)
 
-		app.SetFocus(tree)
+		if onSubmitHandler != nil {
+
+			onSubmitHandler()
+		}
 
 	})
+	return renameForm
 
-	container.AddItem(renameForm, 0, 1, true)
-	app.SetFocus(renameForm)
 }

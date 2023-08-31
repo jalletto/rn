@@ -3,7 +3,6 @@ package main
 import (
 	"log"
 	"os"
-	"path/filepath"
 
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
@@ -31,23 +30,6 @@ func (a *app) setCurrentNode(n *tview.TreeNode) {
 
 func (a *app) getRoodDir() string {
 	return a.rootDir
-}
-
-func renameFile(oldFileName string, newFileName string, oldPath string, newPath string) {
-
-	if oldFileName != newFileName {
-
-		oldFilePath := filepath.Join(oldPath, oldFileName)
-		newFilePath := filepath.Join(newPath, newFileName)
-
-		err := os.Rename(oldFilePath, newFilePath)
-
-		if err != nil {
-			log.Fatalf("Error renaming file: %v", err)
-		}
-
-	}
-
 }
 
 func getWD() string {
@@ -95,6 +77,7 @@ func main() {
 // - I can type in a path
 // - I can choose from a list of common paths
 // - I can create a common path to add to the list
+// Add append and prepend all in Batch.
 // I want to be able to press 'd' to delete a file
 // - A dialog box should appear to ask if I'm sure.
 
