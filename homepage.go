@@ -11,7 +11,7 @@ func buildHomePage(app *app) *tview.Flex {
 	homePageTop := tview.NewFlex()
 	menu := tview.NewTextView().
 		SetTextColor(tcell.ColorGreen).
-		SetText("(r) To Rename Current Selection\n(q) to quit")
+		SetText("(r) Rename Current Selection\n(o) Open Folder\n(q) Quit")
 
 	treeView := newTreeView(app.getRoodDir())
 	treeView.SetChangedFunc(func(n *tview.TreeNode) {
