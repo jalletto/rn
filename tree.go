@@ -80,6 +80,21 @@ func newRootNode(currentDir string) *tview.TreeNode {
 
 }
 
+func renameNodeAndFile(node *tview.TreeNode, newName string) {
+
+	oldFileName := node.GetText()
+	path := getNodeReference(node).path
+
+	renameFile(oldFileName, newName, path, path)
+
+	node.SetText(newName)
+
+	if len(node.GetChildren()) != 0 {
+		reSetAllChildNodes(node)
+	}
+
+}
+
 func newTreeView(currentDir string) tree {
 
 	rootNode := newRootNode(currentDir)
@@ -113,5 +128,29 @@ func (tree *tree) regenerateTree(currentDir string) {
 	}
 
 	tree.SetRoot(rootNode)
+}
 
+func (tree *tree) renderRenameForm(container *tview.Flex, app *app) {
+	renameForm := tview.NewForm()
+	node := app.getCurrentNode()
+
+	newFileName := node.GetText()
+
+	renameForm.AddInputField("Name:", node.GetText(), 50, nil, func(newName string) {
+		newFileName = newName
+	})
+
+	renameForm.AddButton("Rename", func() {
+
+		renameNodeAndFile(node, newFileName)
+
+		renameForm.Clear(true)
+		container.RemoveItem(renameForm)
+
+		app.SetFocus(tree)
+
+	})
+
+	container.AddItem(renameForm, 0, 1, true)
+	app.SetFocus(renameForm)
 }

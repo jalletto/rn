@@ -3,6 +3,7 @@ package main
 import (
 	"io/fs"
 	"log"
+	"path/filepath"
 	"time"
 )
 
@@ -12,6 +13,10 @@ type fileInfo struct {
 	isDir   bool
 	modtime time.Time
 	size    int64
+}
+
+func (f *fileInfo) fullPath() string {
+	return filepath.Join(f.path, f.name)
 }
 
 func newFileInfo(file fs.DirEntry, dirPath string) *fileInfo {
