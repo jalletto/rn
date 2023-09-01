@@ -78,8 +78,8 @@ func main() {
 // - I can choose from a list of common paths
 // - I can create a common path to add to the list
 // Add append and prepend all in Batch.
-// I want to be able to press 'd' to delete a file
-// - A dialog box should appear to ask if I'm sure.
+// I want to be able to enter RegEx to select
+// I want to be able to Batch delete based on selections
 
 // Found Bugs
 
@@ -88,6 +88,7 @@ func main() {
 // I want to be able to rename the dirs and files from the tree
 // I want to see the dirs in the my current root.
 // I want to be able to see the files in those dirs
+// I want to be able to press 'd' to delete a file
 // I want to be able to rename all the files in a directory at once.
 // - If I click on a dir in the tree I am taken to new screen where I can see a list of all files
 // - There is a form where I can set a find pattern and a string to replace it with.
@@ -96,4 +97,4 @@ func main() {
 // Bugs Done
 // If you rename a directory and then try to rename a file in that directory you get an error.
 // - Cause: we are relying on the node's reference for the file path. This get's set when we first generate the tree but is not updated after that.
-// - Possible solution: If we change the reference to a struct that contains all the file data, we can check if we are renaming a dir or not. If we are, then we can get the nodes children and recursively update all child nodes. We could als just completely regenerate the tree. Not sure which is more of a pain in the ass.
+// - Possible solution: If we change the reference to a struct that contains all the file data, we can check if we are renaming a dir or not. If we are, then we can get the nodes children and recursively update all child nodes. We could also just completely regenerate the tree. Not sure which is more of a pain in the ass.

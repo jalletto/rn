@@ -128,11 +128,9 @@ func findAndReplace(table *tview.Table, col int, find string, replace string) {
 			reference.proposedName = newFileName
 			cell.SetText(newFileName)
 
-		} else {
-			if reference.proposedName != currentName {
-				reference.proposedName = currentName
-				cell.SetText(currentName)
-			}
+		} else if reference.proposedName != currentName {
+			reference.proposedName = currentName
+			cell.SetText(currentName)
 		}
 
 	}

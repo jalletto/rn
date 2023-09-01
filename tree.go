@@ -9,36 +9,7 @@ import (
 	"github.com/rivo/tview"
 )
 
-func buildTree(node *tview.TreeNode, dirPath string) error {
-	files, err := os.ReadDir(dirPath)
-
-	if err != nil {
-		return err
-	}
-
-	for _, file := range files {
-		fileName := file.Name()
-
-		reference := newFileInfo(file, dirPath)
-
-		if file.IsDir() {
-			childNode := tview.NewTreeNode(fileName).
-				SetSelectable(true).
-				SetExpanded(false).
-				SetColor(tcell.ColorBlue).
-				SetReference(reference)
-
-			node.AddChild(childNode)
-			if err := buildTree(childNode, filepath.Join(dirPath, fileName)); err != nil {
-				return err
-			}
-		} else {
-			node.AddChild(tview.NewTreeNode(fileName).SetReference(reference))
-		}
-	}
-
-	return nil
-}
+// Node
 
 func reSetAllChildNodes(node *tview.TreeNode) error {
 
@@ -64,6 +35,43 @@ func reSetAllChildNodes(node *tview.TreeNode) error {
 
 func getNodeReference(node *tview.TreeNode) *fileInfo {
 	return node.GetReference().(*fileInfo)
+}
+
+func getParentNode(node *tview.TreeNode) *tview.TreeNode {
+	return getNodeReference(node).parentNode
+}
+
+// TREE
+
+func buildTree(node *tview.TreeNode, dirPath string) error {
+	files, err := os.ReadDir(dirPath)
+
+	if err != nil {
+		return err
+	}
+
+	for _, file := range files {
+		fileName := file.Name()
+
+		reference := newFileInfo(file, dirPath, node)
+
+		if file.IsDir() {
+			childNode := tview.NewTreeNode(fileName).
+				SetSelectable(true).
+				SetExpanded(false).
+				SetColor(tcell.ColorBlue).
+				SetReference(reference)
+
+			node.AddChild(childNode)
+			if err := buildTree(childNode, filepath.Join(dirPath, fileName)); err != nil {
+				return err
+			}
+		} else {
+			node.AddChild(tview.NewTreeNode(fileName).SetReference(reference))
+		}
+	}
+
+	return nil
 }
 
 func newRootNode(currentDir string) *tview.TreeNode {

@@ -12,7 +12,7 @@ func buildHomePage(app *app) *tview.Flex {
 	renameFormContainer := tview.NewFlex()
 	menu := tview.NewTextView().
 		SetTextColor(tcell.ColorGreen).
-		SetText("(r) Rename Current Selection\n(o) Open Folder\n(q) Quit")
+		SetText("(r) Rename Current Selection\n(d) Delete Selection\n(o) Open Folder\n(q) Quit")
 
 	treeView := newTreeView(app.getRoodDir())
 
@@ -40,15 +40,17 @@ func buildHomePage(app *app) *tview.Flex {
 			}
 		case 'd': // delete selected
 			node := app.getCurrentNode()
-			fileInfo := node.GetReference().(*fileInfo)
+			fileInfo := getNodeReference(node)
 			path := fileInfo.fullPath()
+			parent := getParentNode(node)
+
 			if fileInfo.isDir {
 				deleteDir(path)
 			} else {
 				deleteFile(path)
 			}
-
-			app.AddAndSwitchToPage("Home", buildHomePage(app), true)
+			treeView.Move(1)
+			parent.RemoveChild(node)
 
 		}
 		return event
