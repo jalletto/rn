@@ -1,3 +1,8 @@
 # RN - Rename Utility Built With [Tview](https://github.com/rivo/tview)
 
-Offers a tree view of your files. Rename them with a TUI interface. Batch rename coming soon...
+Navigate directories with an interactive tree view. Rename and delete files. Batch rename files.
+
+
+![batch rename](./imgs/batch.png)
+
+![tree rename](./imgs/tree.png)

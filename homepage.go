@@ -12,7 +12,7 @@ func buildHomePage(app *app) *tview.Flex {
 	renameFormContainer := tview.NewFlex()
 	menu := tview.NewTextView().
 		SetTextColor(tcell.ColorGreen).
-		SetText("(r) Rename Current Selection\n(d) Delete Selection\n(o) Open Folder\n(q) Quit")
+		SetText("(r) Rename Current Selection\n(d) Delete Selection\n(o) Open Folder (Batch Rename)\n(q) Quit")
 
 	treeView := newTreeView(app.getRoodDir())
 
