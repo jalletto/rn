@@ -1,11 +1,16 @@
 package main
 
 import (
+	"fmt"
+	"strings"
+
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
 )
 
 func buildHomePage(app *app) *tview.Flex {
+
+	askToDelete := true
 
 	// Set Up containers
 	homePageTop := tview.NewFlex()
@@ -24,7 +29,6 @@ func buildHomePage(app *app) *tview.Flex {
 
 		switch event.Rune() {
 		case 'r': // rename selected
-
 			renameForm := renderRenameForm(app, func() {
 				renameFormContainer.Clear()
 				app.SetFocus(treeView)
@@ -41,17 +45,38 @@ func buildHomePage(app *app) *tview.Flex {
 		case 'd': // delete selected
 			node := app.getCurrentNode()
 			fileInfo := getNodeReference(node)
-			path := fileInfo.fullPath()
+			modal := newAskToDeleteModal(fileInfo.name)
 			parent := getParentNode(node)
 
-			if fileInfo.isDir {
-				deleteDir(path)
-			} else {
-				deleteFile(path)
-			}
-			treeView.Move(1)
-			parent.RemoveChild(node)
+			modal.SetDoneFunc(func(buttonIndex int, buttonLabel string) {
 
+				if strings.Contains(buttonLabel, "Delete") {
+
+					fileInfo.deleteReferenceFile()
+					treeView.Move(1)
+					parent.RemoveChild(node)
+				}
+
+				if buttonLabel == "Delete and Don't Show Again" {
+					askToDelete = false
+				}
+
+				homePageTop.RemoveItem(modal)
+				app.SetFocus(treeView)
+
+			})
+
+			if askToDelete {
+
+				homePageTop.AddItem(modal, 0, 1, true)
+				app.SetFocus(modal)
+			} else {
+
+				fileInfo.deleteReferenceFile()
+				treeView.Move(1)
+				parent.RemoveChild(node)
+
+			}
 		}
 		return event
 	})
@@ -67,4 +92,19 @@ func buildHomePage(app *app) *tview.Flex {
 		AddItem(menu, 0, 1, false)
 
 	return homePage
+}
+
+func newAskToDeleteModal(thingToDelete string) *tview.Modal {
+
+	labels := []string{
+		"Delete",
+		"Cancel",
+		"Delete and Don't Show Again",
+	}
+
+	m := tview.NewModal().
+		SetText(fmt.Sprintf("Delete %s ?", thingToDelete)).
+		AddButtons(labels)
+
+	return m
 }

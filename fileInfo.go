@@ -28,6 +28,15 @@ func (f *fileInfo) getParentDir() string {
 	return filepath.Base(f.path)
 }
 
+func (f *fileInfo) deleteReferenceFile() {
+
+	if f.isDir {
+		deleteDir(f.fullPath())
+	} else {
+		deleteFile(f.fullPath())
+	}
+}
+
 func newFileInfo(file fs.DirEntry, dirPath string, parentNode *tview.TreeNode) *fileInfo {
 
 	info, err := file.Info()
