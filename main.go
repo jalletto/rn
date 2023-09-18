@@ -80,14 +80,15 @@ func main() {
 // Add append and prepend all in Batch.
 // I want to be able to enter RegEx to select
 // I want to be able to Batch delete based on selections
+// Add labels to the batch rename table columns
+// It would be cool to be able to send the list of file names to chatgpt and have it suggest the changes.
 
 // Found Bugs
 
 // DONE
-// Create a file class to hold all file data. Then update the node reference to use the file class.
-// I want to be able to rename the dirs and files from the tree
-// I want to see the dirs in the my current root.
+// I want to see the dirs in my current root.
 // I want to be able to see the files in those dirs
+// I want to be able to rename the dirs and files one at a time from the tree
 // I want to be able to press 'd' to delete a file
 // I want to be able to rename all the files in a directory at once.
 // - If I click on a dir in the tree I am taken to new screen where I can see a list of all files

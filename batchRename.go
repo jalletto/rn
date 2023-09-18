@@ -72,7 +72,20 @@ func buildBatchRenamePage(app *app) *tview.Flex {
 }
 
 func populateTable(table *tview.Table, files []fs.DirEntry) {
-	i := 0
+
+	table.SetCell(0, 0,
+		tview.NewTableCell("Original Name").
+			SetTextColor(tcell.ColorYellow).
+			SetBackgroundColor(tcell.ColorGrey).
+			SetExpansion(1))
+
+	table.SetCell(0, 1,
+		tview.NewTableCell("New Name").
+			SetTextColor(tcell.ColorYellow).
+			SetBackgroundColor(tcell.ColorGrey).
+			SetExpansion(1))
+
+	i := 1
 	for _, file := range files {
 
 		if !file.IsDir() {
@@ -96,7 +109,7 @@ func populateTable(table *tview.Table, files []fs.DirEntry) {
 }
 
 func renameFiles(table *tview.Table, path string) {
-	for row := 0; row < table.GetRowCount(); row++ {
+	for row := 1; row < table.GetRowCount(); row++ {
 		cell := table.GetCell(row, 1)
 		reference := cell.GetReference().(*renameValues)
 		currentName := reference.currentName
@@ -114,7 +127,7 @@ func renameFiles(table *tview.Table, path string) {
 
 func findAndReplace(table *tview.Table, col int, find string, replace string) {
 
-	for row := 0; row < table.GetRowCount(); row++ {
+	for row := 1; row < table.GetRowCount(); row++ {
 		cell := table.GetCell(row, col)
 		reference := cell.GetReference().(*renameValues)
 		currentName := reference.currentName
